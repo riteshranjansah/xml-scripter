@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML Scripter</title>
+    <link rel="icon" type="image/png" href="src/Images/favicon.png">
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+
+<body>
+    <!-- Disclaimer Modal -->
+    <div id="disclaimerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Disclaimer</h2>
+            <p>Please read the following disclaimer carefully before using this website:</p>
+            <p>This tool is designed for educational purposes only. It is specially designed for the Decipher tool for
+                scripting in a more convenient way. Ensure that you understand the functionality and limitations of the
+                XML generation process.</p>
+            <p>You can refer to the <a href="src/Guide.pdf" target="_blank" title="Guide">Guide</a> for detailed
+                instructions on how to use this tool.</p>
+            <button id="agreeBtn" onclick="agreeToDisclaimer()">I Agree</button>
+        </div>
+    </div>
+    <div class="navbar">
+        <div class="navbar-content">
+            <a href="https://riteshranjansah.github.io/portfolio" target="_blank" title="Created By">👨‍💻</a>
+            <a href="src/Guide.pdf" target="_blank" title="Guide">🗺️</a>
+            <a href="https://forms.gle/cqMbCxdgWQbjmgBW8" target="_blank" title="Feedback">📝</a>
+        </div>
+    </div>
+    <div class="container">
+        <!-- Left editor: Docx editor -->
+        <div class="docx-editor">
+            <textarea id="tinymce-editor"></textarea>
+        </div>
+
+        <!-- Center panel: Buttons -->
+        <div class="button-panel">
+            <!-- Checkboxes -->
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="clean-pn" checked>Clean PN[...]</label>
+                <label><input type="checkbox" id="clean-pn-bracket">Clean PN(...)</label>
+                <label><input type="checkbox" id="match-label">Match Label</label>
+                <label><input type="checkbox" id="add-values">Add Values</label>
+                <label><input type="checkbox" id="desc-order">Descending order</label>
+            </div>
+            <!-- Generate XML Button -->
+            <button class="generateXML-btn" onclick="generateXML()"
+                title="By clicking this button, you will be able to generate complete XML in one go. Please ensure the document is in proper format for accurate results.">
+                <span>Generate XML</span>
+            </button>
+
+            <!-- Buttons -->
+            <div class="dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown('questionTypes')">! QUESTION TYPES</button>
+                <div id="questionTypes" class="dropdown-content">
+                    <button onclick="makeRadio()">Make Radio</button>
+                    <button onclick="makeCheckbox()">Make Checkbox</button>
+                    <button onclick="makeSelect()">Make Select</button>
+                    <button onclick="makeText()">Make Text</button>
+                    <button onclick="makeTextArea()">Make TextArea</button>
+                    <button onclick="makeNumber()">Make Number</button>
+                    <button onclick="makePipe()">Make Pipe</button>
+                    <button onclick="makeHtml()">Make HTML</button>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown('questionElements')">! QUESTION
+                    ELEMENTS</button>
+                <div id="questionElements" class="dropdown-content">
+                    <button onclick="makeRows()">Make Rows</button>
+                    <button onclick="makeCols()">Make Cols</button>
+                    <button onclick="makeChoice()">Make Choice</button>
+                    <button onclick="makeCase()">Make Case</button>
+                    <button onclick="makeNets()">Make Nets</button>
+                    <button onclick="makeResourceTag()">Make Resource Tag</button>
+                    <button onclick="makeTerm()">Make Term</button>
+                    <button onclick="makeGroups()">Make Groups</button>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown('textFormatting')">! TEXT FORMATTING</button>
+                <div id="textFormatting" class="dropdown-content">
+                    <button onclick="addFormatting()">Add Formatting</button>
+                    <button onclick="addBoldUnderline()">Bold Underline</button>
+                    <button onclick="addBold()">&lt;b&gt;&lt;/b&gt;</button>
+                    <button onclick="addUnderline()">&lt;u&gt;&lt;/u&gt;</button>
+                    <button onclick="addItalic()">&lt;i&gt;&lt;/i&gt;</button>
+                    <button onclick="addList()">&lt;li&gt;&lt;/li&gt;</button>
+                    <button onclick="makeList()">&lt;li&gt; per line</button>
+                    <button onclick="addBreak()">&lt;br /&gt;&lt;br /&gt;</button>
+                    <button onclick="addComment()">&lt;!-- --&gt;</button>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown('attributesButton')">! ATTRIBUTES</button>
+                <div id="attributesButton" class="dropdown-content">
+                    <button onclick="addHiddenElements()">Add Hidden Element</button>
+                    <button onclick="addOpenEnd()">Add Open-End</button>
+                    <button onclick="addRandomize()">Add Randomize="0"</button>
+                    <button onclick="addExclusive()">Add Exclusive</button>
+                    <button onclick="addShuffleRows()">Add Shuffle Rows</button>
+                    <button onclick="addSortRows()">Add Sort Rows</button>
+                    <button onclick="addAggregate()">Add Aggregate</button>
+                    <button onclick="addOptional()">Add Optional</button>
+                    <button onclick="addGroups()">Add Groups</button>
+                    <button onclick="addValues()">Add Values</button>
+                    <button onclick="addValuesHL()">Add Values(H-L)</button>
+                    <button onclick="addDesktopView()">Add DesktopView</button>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown('controlElements')">! CONTROL ELEMENTS</button>
+                <div id="controlElements" class="dropdown-content">
+                    <button onclick="addBlockTag()">Add Block Tag</button>
+                    <button onclick="addBlockTagChild()">Add Block Tag (randomizeChildren)</button>
+                    <button onclick="addLoopTag()">Add Loop Tag</button>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-toggle" onclick="toggleCustomSetups()">! CUSTOM SETUPS</button>
+                <div id="customSetups" class="dropdown-content">
+                    <div id="file-upload-section">
+                        <input type="file" id="fileInput" accept=".txt" onchange="handleFileSelect(event)">
+                        <p class="dwninstructions">
+                            You haven't uploaded a file yet. Click the icon below to download the sample file and then
+                            upload your own.
+                            <br /><a href="src/sample.txt" download="sample.txt" title="Download Sample File">⬇️
+                                Download Sample File</a>
+                        </p>
+                    </div>
+                    <div id="file-content-section" class="hidden">
+                        <div id="dropdown-buttons">
+                            <!-- Dynamic buttons will be added here -->
+                        </div>
+                        <button onclick="changeFile()"><b>Change File</b></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="resizer"></div>
+        <!-- Right editor: XML editor -->
+        <div class="xml-editor">
+            <div class="xml-toolbar">
+                <span>XML - EDITOR</span>
+                <button onclick="resetAll()">📃 New</button>
+                <button onclick="undo()"><img src="src/Images/undo.png" alt="Undo"></button>
+                <button onclick="redo()"><img src="src/Images/redo.png" alt="Redo"></button>
+                <button onclick="copyAll()">Copy All 📋</button>
+            </div>
+            <div id="editor"></div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js"></script>
+    <script src="tinymce/tinymce.min.js"></script>
+    <script src="src/script.js"></script>
+</body>
+
+</html>
