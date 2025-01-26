@@ -590,6 +590,7 @@ function makeOption(content, make, { value = false } = {}) {
     let index = 1;
     let options = '';
     let TermText = [];
+    let TermCond = [];
     let optionList = [];
     const cleanPnChecked = document.getElementById('clean-pn').checked;
     const cleanPnBracketChecked = document.getElementById('clean-pn-bracket').checked;
@@ -676,6 +677,7 @@ function makeOption(content, make, { value = false } = {}) {
         }
         if (termFlag === 1) {
             TermText.push(remainingPart);
+            TermCond.push(optionLabel);
         }
         optionList.push(`<${make} label="${optionLabel}"${optionAttributes}>${remainingPart}</${make}>`);
     }
@@ -708,7 +710,7 @@ function makeOption(content, make, { value = false } = {}) {
     } else {
         options = optionList.join('\n');
     }
-    return { options, TermText };
+    return { options, TermText, TermCond };
 }
 
 // Function to make rows
@@ -858,7 +860,6 @@ function getLabelTitle(content) {
                 const temp = getFirstWord(qtitle);
                 if (temp.length > 0) {
                     iqtext = temp;
-
                     remainingContent = remainingContent.slice(i + 1);
                     break;
                 }
@@ -866,6 +867,10 @@ function getLabelTitle(content) {
                 iqtext = firstWord;
             }
         }
+    }
+    // Handle case where remaining content still includes unprocessed lines after loop
+    if (remainingContent.length === lines.length) {
+        remainingContent = []; // Ensure it's empty if no additional content exists
     }
     if (/^\d/.test(qlabel)) {
         qlabel = 'Q' + qlabel;
@@ -949,7 +954,6 @@ function makeHtml(content) {
             content = addbiuFormatting(selectedNode, selectedHtml);
         }
     }
-
     content = content.replace(/(<br\s*\/?>\s*<br\s*\/?>)/g, '').replace(/ +/g, ' ').trim();
     const { qlabel, qtitle, remainingContents } = getLabelTitle(content);
     let remainingContent = remainingContents;
@@ -1093,13 +1097,9 @@ function makeRadio(content) {
     let termcod = [];
     let finalOutput = '';
     if (col.length > 0 && row.length == 0) {
-        const { options, TermText: terms } = makeOption(col, 'col', { value: true });
-        for (const term of terms) {
-            // Match the <row> elements that contain the term
-            const termMatch = options.match(new RegExp(`<\\w+\\s+label=["'](c\\d+)["'][^>]*>\\s*(${term})\\s*</\\w+>`));
-            if (termMatch) {
-                termcod.push(`${qlabel}.${termMatch[1]}`);
-            }
+        const { options, TermText: terms, TermCond } = makeOption(col, 'col', { value: true });
+        for (const term of TermCond) {
+            termcod.push(`${qlabel}.${term}`);
         }
         const tcond = termcod.join(' or ');
         const tText = terms.map(t => `'${t}'`).join(' or ');
@@ -1118,13 +1118,10 @@ function makeRadio(content) {
         const { options: coptions } = makeOption(col, 'col', { value: true });
         finalOutput = `<radio\nlabel="${qlabel}" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${roptions}\n${coptions}\n</radio>\n<suspend/>`;
     } else {
-        const { options, TermText: terms } = makeOption(row, 'row', { value: true });
-        for (const term of terms) {
-            // Match the <row> elements that contain the term
-            const termMatch = options.match(new RegExp(`<\\w+\\s+label=["'](r\\d+)["'][^>]*>\\s*(${term})\\s*</\\w+>`));
-            if (termMatch) {
-                termcod.push(`${qlabel}.${termMatch[1]}`);
-            }
+        const { options, TermText: terms, TermCond } = makeOption(row, 'row', { value: true });
+
+        for (const term of TermCond) {
+            termcod.push(`${qlabel}.${term}`);
         }
         const tcond = termcod.join(' or ');
         const tText = terms.map(t => `'${t}'`).join(' or ');
@@ -1188,12 +1185,9 @@ function makeCheckbox(content) {
     let termcod = [];
     let finalOutput = '';
     if (col.length > 0 && row.length == 0) {
-        const { options, TermText: terms } = makeOption(col, 'col', { value: false });
-        for (const term of terms) {
-            const termMatch = options.match(new RegExp(`<\\w+\\s+label=["'](c\\d+)["'][^>]*>\\s*(${term})\\s*</\\w+>`));
-            if (termMatch) {
-                termcod.push(`${qlabel}.${termMatch[1]}`);
-            }
+        const { options, TermText: terms, TermCond } = makeOption(col, 'col', { value: false });
+        for (const term of TermCond) {
+            termcod.push(`${qlabel}.${term}`);
         }
         const tcond = termcod.join(' or ');
         const tText = terms.map(t => `'${t}'`).join(' or ');
@@ -1210,12 +1204,9 @@ function makeCheckbox(content) {
         const { options: coptions } = makeOption(col, 'col', { value: false });
         finalOutput = `<checkbox\nlabel="${qlabel}" atleast="1" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${roptions}\n${coptions}\n</checkbox>\n<suspend/>`;
     } else {
-        const { options, TermText: terms } = makeOption(row, 'row', { value: false });
-        for (const term of terms) {
-            const termMatch = options.match(new RegExp(`<\\w+\\s+label=["'](r\\d+)["'][^>]*>\\s*(${term})\\s*</\\w+>`));
-            if (termMatch) {
-                termcod.push(`${qlabel}.${termMatch[1]}`);
-            }
+        const { options, TermText: terms, TermCond } = makeOption(row, 'row', { value: false });
+        for (const term of TermCond) {
+            termcod.push(`${qlabel}.${term}`);
         }
         const tcond = termcod.join(' or ');
         const tText = terms.map(t => `'${t}'`).join(' or ');
@@ -1274,6 +1265,7 @@ function makeSelect(content) {
     if (qcomment == '') {
         qcomment = 'Please choose one option from dropdown';
     }
+    let termcod = [];
     let finalOutput = '';
     if (row.length > 0 && col.length > 0 && choice.length > 0) {
         const { options: roptions } = makeOption(row, 'row', { value: false });
@@ -1293,15 +1285,47 @@ function makeSelect(content) {
         const { options: choptions } = makeOption(choice, 'choice', { value: false });
         finalOutput = `<select\nlabel="${qlabel}" optional="0" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${choptions}\n${coptions}\n</select>\n<suspend/>`;
     } else if (row.length > 0 && col.length == 0 && choice.length == 0) {
-        const { options: choptions } = makeOption(row, 'choice', { value: false });
-        finalOutput = `<select\nlabel="${qlabel}" optional="0" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${choptions}\n</select>\n<suspend/>`;
-    } else if (row.length == 0 && col.length > 0 && choice.length == 0) {
-        const { options: choptions } = makeOption(col, 'choice', { value: false });
-        finalOutput = `<select\nlabel="${qlabel}" optional="0" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${choptions}\n</select>\n<suspend/>`;
-    } else {
-        const { options: choptions } = makeOption(choice, 'choice', { value: false });
-        finalOutput = `<select\nlabel="${qlabel}" optional="0" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${choptions}\n</select>\n<suspend/>`;
+        const { options: choptions, TermText: terms, TermCond } = makeOption(row, 'choice', { value: false });
+        for (const term of TermCond) {
+            termcod.push(`${qlabel}.${term}`);
+        }
+        const tcond = termcod.join(' or ');
+        const tText = terms.map(t => `'${t}'`).join(' or ');
 
+        if (tText != '') {
+            finalOutput = `<select\nlabel="${qlabel}" optional="0" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${choptions}\n</select>\n<suspend/>\n\n<term label="${qlabel}_Term" cond="${tcond}">${qlabel}: Terminate if coded ${tText}</term>\n\n<suspend/>`;
+
+        } else {
+            finalOutput = `<select\nlabel="${qlabel}" optional="0" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${choptions}\n</select>\n<suspend/>`;
+        }
+    } else if (row.length == 0 && col.length > 0 && choice.length == 0) {
+        const { options: choptions, TermText: terms, TermCond } = makeOption(col, 'choice', { value: false });
+        for (const term of TermCond) {
+            termcod.push(`${qlabel}.${term}`);
+        }
+        const tcond = termcod.join(' or ');
+        const tText = terms.map(t => `'${t}'`).join(' or ');
+
+        if (tText != '') {
+            finalOutput = `<select\nlabel="${qlabel}" optional="0" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${choptions}\n</select>\n<suspend/>\n\n<term label="${qlabel}_Term" cond="${tcond}">${qlabel}: Terminate if coded ${tText}</term>\n\n<suspend/>`;
+
+        } else {
+            finalOutput = `<select\nlabel="${qlabel}" optional="0" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${choptions}\n</select>\n<suspend/>`;
+        }
+    } else {
+        const { options: choptions, TermText: terms, TermCond } = makeOption(choice, 'choice', { value: false });
+        for (const term of TermCond) {
+            termcod.push(`${qlabel}.${term}`);
+        }
+        const tcond = termcod.join(' or ');
+        const tText = terms.map(t => `'${t}'`).join(' or ');
+
+        if (tText != '') {
+            finalOutput = `<select\nlabel="${qlabel}" optional="0" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${choptions}\n</select>\n<suspend/>\n\n<term label="${qlabel}_Term" cond="${tcond}">${qlabel}: Terminate if coded ${tText}</term>\n\n<suspend/>`;
+
+        } else {
+            finalOutput = `<select\nlabel="${qlabel}" optional="0" ${qAttributes}>\n  <title>${qtitle}</title>\n  <comment>${qcomment}</comment>\n${choptions}\n</select>\n<suspend/>`;
+        }
     }
 
     insertContentIntoEditor(finalOutput + '\n\n');
@@ -1929,13 +1953,13 @@ function generateXML() {
     }
     content = content.replace(/(<br\s*\/?>\s*<br\s*\/?>)/g, '').replace(/ +/g, ' ').trim();
     const lines = content ? content.split('\n') : [content];
-    const radioRegex = /^\s*\[\s*(single|HIDDEN|single select)\s*\]/i;
-    const checkboxRegex = /^\s*\[\s*(multi|multiple|multi select|multiple select)\s*\]/i;
-    const numberRegex = /^\s*\[\s*(numeric)\s*\]/i;
-    const textRegex = /^\s*\[\s*(openend|open-end|oe)\s*\]/i;
-    const textAreaRegex = /^\s*\[\s*(essay|long openend|long open-end|long oe)\s*\]/i;
-    const selectRegex = /^\s*\[\s*(dropdown|drop-down)\s*\]/i;
-    const htmlRegex = /^\s*\[\s*(intro)\s*\]/i;
+    const radioRegex = /\[\s*(single|HIDDEN|single select)\s*\]/i;
+    const checkboxRegex = /\[\s*(multi|multiple|multi select|multiple select)\s*\]/i;
+    const numberRegex = /\[\s*(numeric)\s*\]/i;
+    const textRegex = /\[\s*(openend|open-end|oe)\s*\]/i;
+    const textAreaRegex = /\[\s*(essay|long openend|long open-end|long oe)\s*\]/i;
+    const selectRegex = /\[\s*(dropdown|drop-down)\s*\]/i;
+    const htmlRegex = /\[\s*(intro)\s*\]/i;
     let question = '';
     let currentType = '';
 
