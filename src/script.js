@@ -43,6 +43,7 @@ document.addEventListener('mousemove', (event) => {
         // Set the new widths without constraints
         leftPanel.style.width = newWidth + 'px'; // Set the width of the docx-editor
         rightPanel.style.width = `calc(100% - ${newWidth + buttonPanelWidth + 10}px)`; // Adjust width of xml-editor
+        editor.resize();
     }
 });
 
