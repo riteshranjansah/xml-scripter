@@ -6,7 +6,8 @@
 
 You can try the XML Scripter tool directly on the web by visiting the following link:
 
-[**Visit XML Scripter**](https://riteshranjansah.github.io/xml-scripter)
+[**Visit XML Scripter**](https://riteshranjansah.github.io/xml-scripter){:target="_blank"}
+
 
 ## **Features**
 - **Rich Text Editing (TinyMCE)**: Input and format your text with standard text editing tools.
@@ -56,4 +57,3 @@ Open `index.html` in your browser to use the tool.
 ## **Contributions**
 
 Feel free to fork the project and submit pull requests if you would like to contribute!
-
