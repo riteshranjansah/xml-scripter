@@ -1,9 +1,12 @@
 @Setup 1
+~This is Setup 1 hover text
 This is the content from Setup 1.
 
 @Setup 2
 This is the content from Setup 2.
 
 @Setup 3
+~This is Setup 3 hover text
 This is the content from Setup 3.
 @nothing
+~This is noving hover text
