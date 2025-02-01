@@ -2,6 +2,12 @@
 
 **XML Scripter** is a web-based tool designed to streamline the creation of XML scripts. It integrates two powerful editors: **TinyMCE** for rich text editing and **Ace Editor** for XML editing. This tool allows users to generate XML structures with ease, thanks to its intuitive interface and various options for formatting and inserting XML elements. 
 
+## **Live Demo**
+
+You can try the XML Scripter tool directly on the web by visiting the following link:
+
+[**Visit XML Scripter**](https://riteshranjansah.github.io/xml-scripter)
+
 ## **Features**
 - **Rich Text Editing (TinyMCE)**: Input and format your text with standard text editing tools.
 - **XML Editor (Ace Editor)**: Easily edit and generate XML code with syntax highlighting and advanced features.
@@ -50,3 +56,4 @@ Open `index.html` in your browser to use the tool.
 ## **Contributions**
 
 Feel free to fork the project and submit pull requests if you would like to contribute!
+
