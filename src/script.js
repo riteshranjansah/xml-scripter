@@ -153,16 +153,15 @@ function toggleDropdown(id) {
         element.classList.add('hidden');
     }
 }
-// Keep track of whether a file has been uploaded
+
 let fileUploaded = false;
+
 function toggleCustomSetups() {
     const customSetups = document.getElementById('customSetups');
     if (fileUploaded) {
-        // If a file is uploaded, show the content section
         document.getElementById('file-content-section').classList.remove('hidden');
         document.getElementById('file-upload-section').classList.add('hidden');
     } else {
-        // If no file is uploaded, show the upload section
         document.getElementById('file-content-section').classList.add('hidden');
         document.getElementById('file-upload-section').classList.remove('hidden');
     }
@@ -172,43 +171,82 @@ function toggleCustomSetups() {
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = function (e) {
         const text = e.target.result;
         const lines = text.split('\n');
         const dropdownButtons = document.getElementById('dropdown-buttons');
         let currentKey = '';
+        let hoverText = '';
+        let content = '';
+        let isNextLineHover = false; // Flag to check if the next line should be hover text
         const options = {};
+
         lines.forEach(line => {
             if (line.startsWith('@')) {
+                // Save the previous section if it exists
+                if (currentKey) {
+                    options[currentKey] = { content, hover: hoverText };
+                }
+
+                // Start a new title section
                 currentKey = line.substring(1).trim();
-                options[currentKey] = '';
+                content = ''; // Reset content for the new section
+                hoverText = ''; // Reset hover text
+                isNextLineHover = true; // The next line should be hover text if it starts with ~
+            } else if (isNextLineHover && line.startsWith('~')) {
+                // Only consider ~ as hover text if it's the first non-content line after a title
+                hoverText = line.substring(1).trim();
+                isNextLineHover = false; // After reading hover text, set flag back to false
             } else if (currentKey) {
-                options[currentKey] += line + '\n';
+                // Otherwise, treat the line as content for the current section
+                content += line + '\n';
+                isNextLineHover = false; // After reading hover text, set flag back to false
             }
         });
+
+        // Don't forget to save the last section
+        if (currentKey) {
+            options[currentKey] = { content, hover: hoverText };
+        }
+
         // Clear existing buttons
         dropdownButtons.innerHTML = '';
-        // Create a button for each key
+
+        // Create a button for each title
         Object.keys(options).forEach(key => {
+            const { content, hover } = options[key];
             const button = document.createElement('button');
             button.className = 'dropdown-item';
             button.innerText = key;
+
+            // If hover text exists, set it as the title attribute for the button
+            if (hover) {
+                button.setAttribute('title', hover);
+            }
+
+            // Add button to dropdown
             dropdownButtons.appendChild(button);
+
+            // Set up event listener for button click to insert content
             button.addEventListener('click', () => {
-                insertContentIntoEditor(options[key].trim());
+                insertContentIntoEditor(content.trim());
             });
         });
+
         fileUploaded = true;
         toggleCustomSetups(); // Switch to content view after upload
     };
     reader.readAsText(file);
 }
+
 function changeFile() {
-    fileUploaded = false; // Reset the file uploaded flag
-    document.getElementById('fileInput').value = ''; // Clear the file input
-    toggleCustomSetups(); // Switch to the file upload view
+    fileUploaded = false;
+    document.getElementById('fileInput').value = '';
+    toggleCustomSetups(); // Switch to file upload view
 }
+
 // Function to insert content into Ace editor at cursor position or replace selection
 function insertContentIntoEditor(content) {
     const session = editor.getSession();
