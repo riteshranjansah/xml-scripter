@@ -171,7 +171,17 @@ function toggleCustomSetups() {
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
+    
+    // Validate file type
+    const allowedTypes = ['text/plain']; // Only allow plain text files
+    const allowedExtensions = ['.txt'];  // Only allow .txt files
+    const fileExtension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
 
+    if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
+        showWarning('Only .txt files are allowed.');
+        return;
+    }
+    
     const reader = new FileReader();
     reader.onload = function (e) {
         const text = e.target.result;
