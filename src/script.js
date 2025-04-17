@@ -2005,7 +2005,7 @@ function generateXML() {
     const radioRegex = /\[\s*(single|HIDDEN|single select)\s*\]/i;
     const checkboxRegex = /\[\s*(multi|multiple|multi select|multiple select)\s*\]/i;
     const numberRegex = /\[\s*(numeric)\s*\]/i;
-    const textRegex = /\[\s*(openend|open-end|oe)\s*\]/i;
+    const textRegex = /\[\s*(openend|open-end|short oe)\s*\]/i;
     const textAreaRegex = /\[\s*(essay|long openend|long open-end|long oe)\s*\]/i;
     const selectRegex = /\[\s*(dropdown|drop-down)\s*\]/i;
     const htmlRegex = /\[\s*(intro)\s*\]/i;
